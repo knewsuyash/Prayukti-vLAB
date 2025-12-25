@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useMemo } from "react";
 import { X, Table, Grid3X3, ArrowRightLeft } from "lucide-react";
 import { TableData } from "@/lib/table-generator";
