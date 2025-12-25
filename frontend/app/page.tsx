@@ -124,8 +124,8 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="p-4 bg-orange-50 rounded border border-orange-100">
-                  <h3 className="font-bold text-[#d32f2f] mb-2">Vice Chancellor's Message</h3>
-                  <p className="text-xs text-gray-600 italic">"MMMUT is committed to providing world-class technical education..."</p>
+                  <h3 className="font-bold text-[#d32f2f] mb-2">Vice Chancellor&apos;s Message</h3>
+                  <p className="text-xs text-gray-600 italic">&quot;MMMUT is committed to providing world-class technical education...&quot;</p>
                 </div>
               </div>
             </div>

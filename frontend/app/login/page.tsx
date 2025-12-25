@@ -46,13 +46,13 @@ export default function LoginPage() {
             // localStorage.setItem("user", JSON.stringify({ email, role: "student" }));
             // setTimeout(() => router.push("/dashboard"), 1000);
 
-        } catch (err: any) {
+        } catch (err: unknown) {
             // use mock for now if backend not fully ready or connection failed
             if (email.endsWith("@mmmut.ac.in")) {
                 console.log("Mock login success");
                 setSent(true);
             } else {
-                setError(err.message);
+                setError((err as Error).message || "An error occurred");
             }
         } finally {
             setLoading(false);
@@ -111,7 +111,7 @@ export default function LoginPage() {
                             <p className="text-sm text-gray-600">
                                 We have sent a magic link/OTP to <strong>{email}</strong>.
                                 <br />
-                                (For this prototype, clicking "Continue" simulates verification)
+                                (For this prototype, clicking &quot;Continue&quot; simulates verification)
                             </p>
                             <Button
                                 onClick={() => {

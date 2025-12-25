@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, ArrowLeft, FlaskConical } from "lucide-react";
+import { ArrowLeft, FlaskConical } from "lucide-react";
 
 // Mock Data for Prototype
 const practicalData = {

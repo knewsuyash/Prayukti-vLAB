@@ -1,4 +1,4 @@
-import { Handle, Position, useReactFlow, NodeProps } from '@xyflow/react';
+import { Handle, Position, useReactFlow, NodeProps, Node } from '@xyflow/react';
 import { useState } from 'react';
 
 type OutputNodeData = {
@@ -6,7 +6,7 @@ type OutputNodeData = {
     value?: number | boolean;
 };
 
-export default function OutputNode({ data, id }: NodeProps<OutputNodeData>) {
+export default function OutputNode({ data, id }: NodeProps<Node<OutputNodeData>>) {
     const isOn = data.value === true || data.value === 1;
 
     const [isEditing, setIsEditing] = useState(false);
