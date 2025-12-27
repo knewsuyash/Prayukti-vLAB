@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, PlayCircle } from "lucide-react";
@@ -38,7 +40,7 @@ export default function DLDPage() {
                                 <div>
                                     <h3 className="font-medium text-gray-800">{p.title}</h3>
                                     <span className={`text-xs px-2 py-0.5 rounded ${p.difficulty === 'Easy' ? 'bg-green-100 text-green-700' :
-                                            p.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
+                                        p.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
                                         }`}>{p.difficulty}</span>
                                 </div>
                             </div>
