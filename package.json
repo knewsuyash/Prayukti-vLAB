@@ -5,6 +5,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
+    "start": "npm run start:frontend",
     "start:frontend": "turbo run start --filter=frontend",
     "start:backend": "turbo run start --filter=backend",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
