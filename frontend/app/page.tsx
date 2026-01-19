@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { SplineSceneBasic } from "@/components/landing/spline-scene-basic";
 
 export default function Home() {
   return (
@@ -65,22 +66,9 @@ export default function Home() {
 
       <main className="flex-1">
         {/* Banner Section */}
-        <section className="relative h-[400px] bg-gray-100 flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent z-10"></div>
-          {/* Placeholder for Banner Image */}
-          <div className="absolute inset-0 bg-gray-300 flex items-center justify-center text-gray-500">
-            [Banner Slider Area]
-          </div>
-
-          <div className="relative z-20 container mx-auto px-4 text-white">
-            <h2 className="text-4xl font-bold mb-4 drop-shadow-md">Prayukti vLAB</h2>
-            <p className="text-xl mb-8 drop-shadow-md">Virtual Laboratory for Digital Logic & Design</p>
-            <Link href="/login">
-              <Button size="lg" className="bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold px-8 py-6 text-lg shadow-lg border-2 border-white/20">
-                Enter Virtual Lab (DLD)
-              </Button>
-            </Link>
-          </div>
+        {/* Banner Section */}
+        <section className="relative flex items-center justify-center overflow-hidden bg-gray-900">
+          <SplineSceneBasic />
         </section>
 
         {/* Notices & Events Grid */}

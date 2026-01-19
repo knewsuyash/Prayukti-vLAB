@@ -13,6 +13,8 @@
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",
     "@repo/ui": "*",
+    "@splinetool/react-spline": "^4.0.0",
+    "@splinetool/runtime": "^1.0.0",
     "@xyflow/react": "^12.10.0",
     "autoprefixer": "^10.4.23",
     "axios": "^1.6.8",
