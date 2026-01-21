@@ -14,14 +14,17 @@ app.use(cors({
 app.use(express.json());
 
 import authRoutes from "./routes/auth.js";
+import circuitRoutes from "./routes/circuit.js";
+import oopjRoutes from "./modules/oopj/routes.js";
 
 import mongoose from "mongoose";
-import circuitRoutes from "./routes/circuit.js";
 
 // ... existing auth import
 
 app.use("/api/auth", authRoutes);
 app.use("/api/circuits", circuitRoutes);
+app.use("/api/v1/oopj", oopjRoutes);
+
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/prayukti-vlab")
