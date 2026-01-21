@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Twitter, Facebook, Linkedin, Instagram, BookOpen, FlaskConical, Microscope, Layers } from "lucide-react";
+import { SplineScene } from "@/components/ui/splite";
+import { Spotlight } from "@/components/ui/spotlight";
 
 export default function Home() {
   return (
@@ -66,14 +68,19 @@ export default function Home() {
 
       <main className="flex-1">
         {/* Banner Section */}
-        <section className="relative h-[400px] bg-gray-100 flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent z-10"></div>
-          {/* Placeholder for Banner Image */}
-          <div className="absolute inset-0 bg-gray-300 flex items-center justify-center text-gray-500">
-            [Banner Slider Area]
+        <section className="relative h-[600px] bg-black/[0.96] flex items-center justify-center overflow-hidden w-full">
+          <Spotlight className="-top-40 left-0 md:left-60 md:-top-20 z-0" fill="white" />
+
+          <div className="absolute inset-0 z-0">
+            <SplineScene
+              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+              className="w-full h-full"
+            />
           </div>
 
-          <div className="relative z-20 container mx-auto px-4 text-white">
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent z-10 pointer-events-none"></div>
+
+          <div className="relative z-20 container mx-auto px-4 text-white pointer-events-auto mt-20">
             <h2 className="text-5xl font-bold mb-4 drop-shadow-md">Prayukti</h2>
             <p className="text-2xl mb-2 drop-shadow-md font-light">True Learning is Practical</p>
             <p className="text-lg mb-8 drop-shadow-md max-w-2xl text-gray-200">
