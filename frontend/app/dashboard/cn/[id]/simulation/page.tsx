@@ -1,31 +1,27 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import OSISimulation from "@/components/simulation/OSISimulation";
-import CSMASimulation from "@/components/simulation/CSMASimulation";
-import TokenProtocolsSimulation from "@/components/simulation/TokenProtocolsSimulation";
-import SlidingWindowSimulation from "@/components/simulation/SlidingWindowSimulation";
+import { LabRegistry } from "@/lib/labs/registry";
+import { notFound } from "next/navigation";
 
 export default async function SimulationPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 
-    const renderSimulation = () => {
-        switch (id) {
-            case "1":
-                return <OSISimulation />;
-            case "2":
-                return <CSMASimulation />;
-            case "3":
-                return <TokenProtocolsSimulation />;
-            case "4":
-                return <SlidingWindowSimulation />;
-            default:
-                return (
-                    <div className="flex items-center justify-center h-full">
-                        <p className="text-gray-500">Simulation not available for this practical yet.</p>
-                    </div>
-                );
-        }
+    // Map the numeric ID used in the URL to the registry ID
+    const idMap: Record<string, string> = {
+        "1": "osi-model",
+        "2": "csma-cd",
+        "3": "token-protocols",
+        "4": "sliding-window"
     };
+
+    const registryId = idMap[id];
+    const lab = registryId ? LabRegistry[registryId] : null;
+
+    if (!lab) {
+        notFound();
+    }
+
+    const SimulationComponent = lab.component;
 
     return (
         <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
@@ -50,7 +46,7 @@ export default async function SimulationPage({ params }: { params: Promise<{ id:
 
             {/* Main Workbench Area */}
             <main className="flex-1 relative overflow-hidden">
-                {renderSimulation()}
+                <SimulationComponent />
             </main>
         </div>
     );
