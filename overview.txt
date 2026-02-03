@@ -1,0 +1,68 @@
+# Prayukti-vLAB: Technical Project Overview
+
+## 1. Project Vision
+Prayukti-vLAB is a premium, high-fidelity virtual laboratory ecosystem designed for engineering students (B.Tech). It provides interactive simulations for complex technical subjects like Computer Networks (CN) and Object-Oriented Programming (OOPS), focused on visual learning and deterministic protocol analysis.
+
+## 2. Tech Stack
+- **Framework**: Next.js 14+ (App Router)
+- **Frontend**: React with TypeScript
+- **Styling**: Tailwind CSS (Glassmorphism, Vibrant Dark/Light themes)
+- **Icons**: Lucide React
+- **Animations**: CSS Keyframes & SVG-based procedural animations
+- **Components**: Shadcn/UI (Built on Radix UI) for premium accessibility and aesthetics
+
+## 3. Directory Structure
+```
+Prayukti-vLAB/
+├── frontend/
+│   ├── app/
+│   │   ├── dashboard/          # Main lab entry points
+│   │   │   ├── cn/             # Computer Networks Lab
+│   │   │   │   ├── [id]/       # Practical landing pages (Aim, Theory)
+│   │   │   │   └── simulation/ # Interactive lab instances
+│   │   │   ├── oops/           # OOPs Lab (Java/C++)
+│   │   │   └── dld/            # Digital Logic Design (Future)
+│   ├── components/
+│   │   ├── simulation/         # core simulation logic
+│   │   │   ├── OSISimulation.tsx
+│   │   │   ├── CSMASimulation.tsx
+│   │   │   ├── TokenProtocolsSimulation.tsx
+│   │   │   └── SlidingWindowSimulation.tsx
+│   │   └── ui/                 # Reusable Radix/Tailwind components
+```
+
+## 4. User Journey
+1. **Authentication**: (Future) Secure login portal.
+2. **Dashboard**: Subject selection (CN, OOPS, etc.).
+3. **Practical Selection**: List of experiments (e.g., CSMA/CD, Token Ring).
+4. **Learning Phase**: Study Aim, Theory, and Procedure via tabbed navigation.
+5. **Simulation Phase**:
+    - Adjust environment parameters (Node count, packet size, speed).
+    - Run simulation (Real-time SVG visualization).
+    - Inject faults (Node failure, token loss) to see protocol recovery.
+6. **Data Collection**: Auto-filled observation tables with throughput/efficiency stats.
+7. **Assessment**: Randomized MCQs with immediate feedback.
+
+## 5. UI and UX Design Philosophy
+- **Aesthetic**: "Glassmorphism" — Semi-transparent panels with background blurs and vibrant accent colors (Cyan, Indigo, Emerald).
+- **Interactivity**: Procedural SVG animations that reflect mathematical protocol models rather than just "loops".
+- **Feedback**: Real-time logging banners and pulsing glow effects on active data points.
+- **Responsiveness**: Fluid layout that adapts across desktop and tablet interfaces.
+
+## 6. Current Implementation Highlights
+- **Computer Networks**:
+    - **OSI vs TCP/IP**: Visualization of data encapsulation.
+    - **CSMA/CD**: Binary Exponential Backoff logic with interactive flowcharts.
+    - **Token Protocols**: Dynamic Ring, Bus, Star, Mesh, and Hybrid topologies with independent coordinate engines.
+    - **Sliding Window**: Stop & Wait, GBN, and Selective Repeat logic with window slider animations.
+
+## 7. Future Extensions & Suggestions
+- **Dynamic Topology Builder**: Full drag-and-drop node placement and manual edge connection (Hybrid Designer Mode).
+- **Multiplayer Lab**: Secure WebSockets to allow "Pair Lab" sessions where students collaborate on network configurations.
+- **AI Tutors (Neelam)**: Integrated NLP to answer theory questions while the student is in the simulation tab.
+- **Code Execution Environment**: For OOPs labs, a sandboxed compiler (WebAssembly) to run real Java/C++ code and visualize object memory.
+- **Export System**: Auto-generation of PDF Lab Reports containing simulation results and screenshots.
+- **Mobile Companion**: AR/VR views for visualizing data packets "flying" through a room.
+
+---
+*Document Generated on: 2026-02-04*
