@@ -1,5 +1,5 @@
 import express from "express";
-import { Circuit } from "../models/Circuit.js";
+import { Circuit } from "../../models/Circuit";
 
 const router = express.Router();
 
