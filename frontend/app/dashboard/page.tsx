@@ -59,10 +59,23 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    {/* Placeholder for future subjects */}
-                    <div className="bg-white rounded-lg shadow-sm border border-dashed border-gray-300 flex flex-col items-center justify-center p-8 opacity-60">
-                        <span className="text-2xl mb-2 text-gray-400">➕</span>
-                        <p className="font-medium text-gray-400">More Subjects Coming Soon</p>
+                    {/* DBMS Subject Card */}
+                    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100 group">
+                        <div className="h-32 bg-red-100 flex items-center justify-center">
+                            <span className="text-4xl">🗄️</span>
+                        </div>
+                        <div className="p-6">
+                            <h3 className="text-xl font-bold mb-2 group-hover:text-[#d32f2f] transition-colors">Database Management Systems (DBMS)</h3>
+                            <p className="text-sm text-gray-600 mb-4">
+                                Design databases, write SQL queries, and understand relational schema.
+                            </p>
+                            <div className="flex justify-between items-center">
+                                <span className="text-xs font-semibold bg-green-100 text-green-700 px-2 py-1 rounded">Active</span>
+                                <Link href="/dashboard/dbms">
+                                    <Button className="bg-[#d32f2f] hover:bg-[#b71c1c]">Enter Lab</Button>
+                                </Link>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

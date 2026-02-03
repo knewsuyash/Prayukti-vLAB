@@ -86,11 +86,11 @@ export default function Home() {
             <p className="text-lg mb-8 drop-shadow-md max-w-2xl text-gray-200">
               An organization in the college that is newly formed, bringing you a comprehensive virtual laboratory experience.
             </p>
-            <Link href="/login">
-              <Button size="lg" className="bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold px-8 py-6 text-lg shadow-lg border-2 border-white/20 transition-transform transform hover:scale-105">
+            <Button asChild size="lg" className="bg-[#d32f2f] hover:bg-[#b71c1c] text-white font-bold px-8 py-6 text-lg shadow-lg border-2 border-white/20 transition-transform transform hover:scale-105">
+              <Link href="/login">
                 Enter Simulation
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         </section>
 
