@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/layout/Navbar";
+import { Twitter, Facebook, Linkedin, Instagram, BookOpen, FlaskConical, Microscope, Layers } from "lucide-react";
 import { SplineScene } from "@/components/ui/splite";
 import { Spotlight } from "@/components/ui/spotlight";
 
@@ -199,6 +200,32 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Stats / About Section */}
+        <section className="py-16 bg-white relative -mt-10 z-30 container mx-auto px-4">
+          <div className="bg-white rounded-xl shadow-2xl p-8 border-t-4 border-[#f57f17] grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+            <div className="p-4 hover:bg-orange-50 rounded-lg transition-colors group">
+              <BookOpen className="w-12 h-12 mx-auto mb-4 text-[#d32f2f] group-hover:scale-110 transition-transform" />
+              <h3 className="text-4xl font-bold text-gray-800 mb-1">10+</h3>
+              <p className="text-gray-500 font-medium uppercase text-sm tracking-wider">Subjects</p>
+            </div>
+            <div className="p-4 hover:bg-orange-50 rounded-lg transition-colors group">
+              <FlaskConical className="w-12 h-12 mx-auto mb-4 text-[#f57f17] group-hover:scale-110 transition-transform" />
+              <h3 className="text-4xl font-bold text-gray-800 mb-1">25+</h3>
+              <p className="text-gray-500 font-medium uppercase text-sm tracking-wider">Labs</p>
+            </div>
+            <div className="p-4 hover:bg-orange-50 rounded-lg transition-colors group">
+              <Microscope className="w-12 h-12 mx-auto mb-4 text-[#d32f2f] group-hover:scale-110 transition-transform" />
+              <h3 className="text-4xl font-bold text-gray-800 mb-1">100+</h3>
+              <p className="text-gray-500 font-medium uppercase text-sm tracking-wider">Experiments</p>
+            </div>
+            <div className="p-4 hover:bg-orange-50 rounded-lg transition-colors group">
+              <Layers className="w-12 h-12 mx-auto mb-4 text-[#f57f17] group-hover:scale-110 transition-transform" />
+              <h3 className="text-4xl font-bold text-gray-800 mb-1">5+</h3>
+              <p className="text-gray-500 font-medium uppercase text-sm tracking-wider">Engineering Domains</p>
+            </div>
+          </div>
+        </section>
+
         {/* Notices & Events Grid */}
         <section className="py-24 bg-white">
           <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-12 gap-8">
@@ -295,6 +322,13 @@ export default function Home() {
             <p className="mb-2">Madan Mohan Malaviya University of Technology, Gorakhpur</p>
             <p>Phone: +91-551-2273958</p>
             <p>Email: patovc@mmmut.ac.in</p>
+            <div className="flex gap-4 mt-4">
+              {/* Social Icons */}
+              <a href="#" className="hover:text-[#f57f17] transition-colors"><Twitter size={20} /></a>
+              <a href="#" className="hover:text-[#f57f17] transition-colors"><Facebook size={20} /></a>
+              <a href="#" className="hover:text-[#f57f17] transition-colors"><Linkedin size={20} /></a>
+              <a href="#" className="hover:text-[#f57f17] transition-colors"><Instagram size={20} /></a>
+            </div>
           </div>
           <div>
             <h3 className="text-[#f57f17] font-bold mb-4 uppercase">Important Links</h3>

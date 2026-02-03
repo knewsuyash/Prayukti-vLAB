@@ -66,3 +66,55 @@ Prayukti-vLAB/
 
 ---
 *Document Generated on: 2026-02-04*
+
+---
+Prayukti vLAB - Application Overview
+
+1. INTRODUCTION & MOTIVE
+-------------------------
+"Prayukti vLAB" (Virtual Laboratory) is a web-based educational platform designed for Madan Mohan Malaviya University of Technology (MMMUT). 
+
+The primary motive is to democratize access to laboratory resources, specifically for the "Digital Logic & Design (DLD)" curriculum. It aims to bridge the gap between theoretical concepts and practical application by allowing students to design, simulate, and verify digital circuits in a virtual web environment, accessible from anywhere.
+
+2. TECHNOLOGY STACK
+-------------------
+The application is built using a modern Monorepo architecture managed by TurboRepo.
+
+*   **Frontend**: Next.js 15 (App Router), React 19, TypeScript
+    *   UI Framework: Tailwind CSS, Shadcn UI
+    *   Visualisation: React Flow (@xyflow/react) for the circuit canvas.
+    *   State Management: Zustand / React Hooks.
+*   **Backend**: Node.js, Express.js
+    *   Database: MongoDB (with Mongoose ODM).
+    *   Language: TypeScript.
+*   **DevOps/Tooling**: TurboRepo, ESLint, Prettier.
+
+3. KEY FEATURES
+---------------
+A.  **MMMUT Identity**: The application features a landing page that strictly adheres to the University's branding guidelines (Colors: #d32f2f, #f57f17), providing an official look and feel.
+B.  **Restricted Access**: Built-in domain validation restricting login to `@mmmut.ac.in` email addresses, ensuring exclusive access for university students/faculty.
+C.  **Interactive Simulation Engine**: 
+    *   Drag-and-drop interface for logic gates (AND, OR, NOT, NAND, NOR, XOR, XNOR).
+    *   Interactive Input (Switches) and Output (LED bulbs) nodes.
+    *   Wire-based connections between components.
+D.  **Real-Time Logic Evaluation**: The circuit state updates instantly as inputs change, providing visual feedback (Red=High/1, Gray=Low/0).
+E.  **Persistence**: Users can save their circuit designs to the database and reload them later.
+F.  **Dashboard**: A student-centric dashboard to view enrolled subjects and available practical lists.
+
+4. CURRENT IMPLEMENTATION DETAILS
+---------------------------------
+*   **Circuit Engine**: Located in `frontend/lib/circuit-engine.ts`. It uses an iterative propagation algorithm (max 10 passes) to stabilize and calculate logic states across the graph. This effectively handles combinational logic circuits.
+*   **Data Storage**: Circuits are stored as generic JSON objects (compatible with React Flow's proprietary format) in MongoDB, linked to a User ID and Practical ID.
+*   **Bypassed Auth**: For the prototype phase, a simplified authentication flow simulates token generation and verification without a full OAuth provider.
+*   **Styling**: Uses standard CSS modules and Tailwind utility classes for a responsive design.
+
+5. FUTURE ASPECTS & ROADMAP
+---------------------------
+To evolve from a prototype to a production-grade system, the following enhancements are envisioned:
+
+*   **Sequential Logic Support**: Upgrade the simulation engine to handle clock cycles and state memory for Flip-Flops, Counters, and Registers.
+*   **Advanced Components**: Add Multiplexers, Decoders, 7-Segment Displays, and IC chips.
+*   **Collaboration**: WebSocket-based real-time "multiplayer" editing for group projects.
+*   **LMS Integration**: LTI (Learning Tools Interoperability) support to integrate grades directly with the University's ERP/LMS.
+*   **AI Tutor**: An embedded AI assistant to help debug circuit errors or explain logic concepts to students in real-time.
+*   **Virtual Breadboard**: A "Realistic Mode" viewing option that maps the schematic to a physical breadboard layout.

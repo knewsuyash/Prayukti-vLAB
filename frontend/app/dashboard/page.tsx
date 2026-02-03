@@ -94,6 +94,25 @@ export default function Dashboard() {
                         </div>
                     ))}
 
+                    {/* OOPJ Subject Card */}
+                    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100 group">
+                        <div className="h-32 bg-blue-100 flex items-center justify-center">
+                            <span className="text-4xl">☕</span>
+                        </div>
+                        <div className="p-6">
+                            <h3 className="text-xl font-bold mb-2 group-hover:text-[#d32f2f] transition-colors">Object Oriented Programming in Java</h3>
+                            <p className="text-sm text-gray-600 mb-4">
+                                Learn Java programming, OOP concepts, exceptions, and collections.
+                            </p>
+                            <div className="flex justify-between items-center">
+                                <span className="text-xs font-semibold bg-green-100 text-green-700 px-2 py-1 rounded">Active</span>
+                                <Link href="/subjects/oopj">
+                                    <Button className="bg-[#d32f2f] hover:bg-[#b71c1c]">Enter Lab</Button>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Placeholder for future subjects */}
                     <div className="bg-white rounded-lg shadow-sm border border-dashed border-gray-300 flex flex-col items-center justify-center p-8 opacity-60">
                         <span className="text-2xl mb-2 text-gray-400">➕</span>

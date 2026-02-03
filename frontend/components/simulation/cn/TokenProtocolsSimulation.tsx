@@ -334,15 +334,34 @@ export default function TokenProtocolsSimulation({ labMode = "LEARNING" }: { lab
 
                     addLog(`PC-${nodes[activeTransmission.from]?.id} stripped frame. Releasing token.`, 'success');
 
-                    // Token Passing Logic: In Star mode, token visits Hub between PCs
+                    // Token Passing Logic
                     let nextTokenPos = (tokenPos + 1) % nodes.length;
 
-                    // If we just finished a transmission from a PC, next logically "visits" hub? 
-                    // No, usually in Star, Hub is just a physical path. 
-                    // To satisfy "hub se hoke pass ho", we should ensure the animation or sequence involves it.
-                    // Let's make the hub part of the logical rotation if user insists, 
-                    // OR just fix the animation. The user said "token jo pass ho rha hai", 
-                    // which could mean the passing animation.
+                    // In Star mode, specifically transit via Hub (id 0)
+                    if (mode === "star") {
+                        // If we are currently at a PC, the next stop is the Hub
+                        // If we are currently at the Hub, the next stop is the next PC
+                        if (nodes[tokenPos]?.type === "pc") {
+                            nextTokenPos = 0; // Go to Hub
+                        } else {
+                            // Find next PC
+                            let head = (tokenPos + 1) % nodes.length;
+                            let safety = 0;
+                            while (nodes[head]?.type === "hub" && safety < nodes.length) {
+                                head = (head + 1) % nodes.length;
+                                safety++;
+                            }
+                            nextTokenPos = head;
+                        }
+                    } else if (mode === "hybrid") {
+                        // For hybrid, also ensure we don't land on a hub as a final token stop?
+                        // Or just let it follow the ring path.
+                        let safety = 0;
+                        while (nodes[nextTokenPos]?.type === "hub" && safety < nodes.length) {
+                            nextTokenPos = (nextTokenPos + 1) % nodes.length;
+                            safety++;
+                        }
+                    }
 
                     setTokenPos(nextTokenPos);
 
@@ -359,7 +378,7 @@ export default function TokenProtocolsSimulation({ labMode = "LEARNING" }: { lab
 
             // Decide if current node wants to transmit
             if (currentNode.hasToken && !activeTransmission) {
-                const wantsToTransmit = Math.random() < 0.4;
+                const wantsToTransmit = Math.random() < 0.4 && currentNode.type === "pc";
                 if (wantsToTransmit) {
                     const pcNodes = nextNodes.filter(n => n.type === "pc" && n.id !== currentNode.id);
                     const targetNode = pcNodes.length > 0 ? pcNodes[Math.floor(Math.random() * pcNodes.length)] : null;
@@ -369,8 +388,13 @@ export default function TokenProtocolsSimulation({ labMode = "LEARNING" }: { lab
                         setActiveTransmission({ from: tokenPos, to: targetIndex, progress: 0, isReturning: false });
                         addLog(`PC-${currentNode.id} initiated transmission to PC-${targetNode.id}`, 'info');
                     } else {
-                        // Pass token if no targets
+                        // Pass token
                         let nextTokenPos = (tokenPos + 1) % nextNodes.length;
+                        if (mode === "star") {
+                            nextTokenPos = 0; // Go to Hub
+                        } else if (mode === "hybrid") {
+                            while (nodes[nextTokenPos]?.type === "hub") nextTokenPos = (nextTokenPos + 1) % nodes.length;
+                        }
                         setTokenPos(nextTokenPos);
                     }
                     return nextNodes.map((n, i) => ({
@@ -379,8 +403,19 @@ export default function TokenProtocolsSimulation({ labMode = "LEARNING" }: { lab
                     }));
                 } else {
                     // No data, pass token
-                    // No data, pass token
-                    const nextTokenPos = (tokenPos + 1) % nextNodes.length;
+                    let nextTokenPos = (tokenPos + 1) % nextNodes.length;
+                    if (mode === "star") {
+                        // If at PC, go to hub. If at hub, go to next PC.
+                        if (currentNode.type === "pc") {
+                            nextTokenPos = 0;
+                        } else {
+                            let head = (tokenPos + 1) % nextNodes.length;
+                            while (nextNodes[head]?.type === "hub") head = (head + 1) % nextNodes.length;
+                            nextTokenPos = head;
+                        }
+                    } else if (mode === "hybrid") {
+                        while (nextNodes[nextTokenPos]?.type === "hub") nextTokenPos = (nextTokenPos + 1) % nextNodes.length;
+                    }
                     setTokenPos(nextTokenPos);
                     return nextNodes.map((n, i) => ({
                         ...n,
@@ -775,39 +810,7 @@ export default function TokenProtocolsSimulation({ labMode = "LEARNING" }: { lab
                             )}
 
                             {activeTab === "comparison" ? (
-                                <div className="flex flex-col w-full h-full gap-8 overflow-hidden">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="flex gap-4">
-                                            <div className="flex flex-col">
-                                                <label className="text-[10px] font-black text-slate-400 uppercase mb-2">Target Alpha</label>
-                                                <select
-                                                    value={compTopologyA}
-                                                    onChange={(e) => setCompTopologyA(e.target.value as any)}
-                                                    className="text-[10px] font-bold bg-slate-100 border-none rounded-lg px-4 py-2 focus:ring-2 ring-indigo-500 cursor-pointer"
-                                                >
-                                                    <option value="ring">Ring (802.5)</option>
-                                                    <option value="bus">Bus (802.4)</option>
-                                                    <option value="star">Star</option>
-                                                    <option value="mesh">Mesh</option>
-                                                    <option value="hybrid">Current Hybrid</option>
-                                                </select>
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <label className="text-[10px] font-black text-slate-400 uppercase mb-2">Target Beta</label>
-                                                <select
-                                                    value={compTopologyB}
-                                                    onChange={(e) => setCompTopologyB(e.target.value as any)}
-                                                    className="text-[10px] font-bold bg-slate-100 border-none rounded-lg px-4 py-2 focus:ring-2 ring-amber-500 cursor-pointer"
-                                                >
-                                                    <option value="ring">Ring (802.5)</option>
-                                                    <option value="bus">Bus (802.4)</option>
-                                                    <option value="star">Star</option>
-                                                    <option value="mesh">Mesh</option>
-                                                    <option value="hybrid">Current Hybrid</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div className="flex flex-col w-full h-full gap-8">
 
                                     {/* Observation metrics for easy side-by-side comparison */}
                                     <div className="bg-slate-50 flex-1 rounded-[3rem] p-8 border border-slate-100 overflow-auto">
@@ -825,10 +828,23 @@ export default function TokenProtocolsSimulation({ labMode = "LEARNING" }: { lab
                                             </div>
 
                                             {/* Topology Alpha Stats */}
-                                            <div className="col-span-3 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                                                <div className="flex items-center gap-2 mb-6">
-                                                    <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
-                                                    <span className="text-[10px] font-black text-indigo-500 uppercase">{TOPOLOGY_CHARACTERISTICS[compTopologyA].name}</span>
+                                            <div className="col-span-3 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative">
+                                                <div className="flex items-center justify-between mb-6">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
+                                                        <span className="text-[10px] font-black text-indigo-500 uppercase">Topology Alpha</span>
+                                                    </div>
+                                                    <select
+                                                        value={compTopologyA}
+                                                        onChange={(e) => setCompTopologyA(e.target.value as any)}
+                                                        className="text-[10px] font-bold bg-slate-50 border-none rounded-lg px-3 py-1 cursor-pointer focus:ring-1 ring-indigo-500"
+                                                    >
+                                                        <option value="ring">Ring</option>
+                                                        <option value="bus">Bus</option>
+                                                        <option value="star">Star</option>
+                                                        <option value="mesh">Mesh</option>
+                                                        <option value="hybrid">Hybrid</option>
+                                                    </select>
                                                 </div>
                                                 <div className="space-y-10">
                                                     {[
@@ -855,10 +871,23 @@ export default function TokenProtocolsSimulation({ labMode = "LEARNING" }: { lab
                                             </div>
 
                                             {/* Topology Beta Stats */}
-                                            <div className="col-span-3 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                                                <div className="flex items-center gap-2 mb-6 text-right justify-end">
-                                                    <span className="text-[10px] font-black text-amber-500 uppercase">{TOPOLOGY_CHARACTERISTICS[compTopologyB].name}</span>
-                                                    <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                                            <div className="col-span-3 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative">
+                                                <div className="flex items-center justify-between mb-6">
+                                                    <select
+                                                        value={compTopologyB}
+                                                        onChange={(e) => setCompTopologyB(e.target.value as any)}
+                                                        className="text-[10px] font-bold bg-slate-50 border-none rounded-lg px-3 py-1 cursor-pointer focus:ring-1 ring-amber-500"
+                                                    >
+                                                        <option value="ring">Ring</option>
+                                                        <option value="bus">Bus</option>
+                                                        <option value="star">Star</option>
+                                                        <option value="mesh">Mesh</option>
+                                                        <option value="hybrid">Hybrid</option>
+                                                    </select>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-[10px] font-black text-amber-500 uppercase">Topology Beta</span>
+                                                        <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                                                    </div>
                                                 </div>
                                                 <div className="space-y-10">
                                                     {[
@@ -885,26 +914,21 @@ export default function TokenProtocolsSimulation({ labMode = "LEARNING" }: { lab
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-6 mt-10 p-6 bg-indigo-50/30 rounded-3xl border border-indigo-50">
-                                            <div className="space-y-4">
-                                                <div className="flex items-center gap-2">
-                                                    <Target className="h-4 w-4 text-indigo-500" />
-                                                    <h6 className="text-[10px] font-bold text-indigo-700 uppercase">Alpha Advantages</h6>
-                                                </div>
-                                                <ul className="text-xs space-y-1">
+                                        {/* qualitative summary restored */}
+                                        <div className="grid grid-cols-2 gap-6 mt-10">
+                                            <div className="bg-indigo-50/30 p-6 rounded-3xl border border-indigo-50">
+                                                <h6 className="text-[10px] font-bold text-indigo-700 uppercase mb-4">Alpha Advantages</h6>
+                                                <ul className="text-xs space-y-2">
                                                     {TOPOLOGY_CHARACTERISTICS[compTopologyA].pros.map((p, i) => (
                                                         <li key={i} className="flex items-center gap-2 text-slate-600 font-medium">
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-indigo-400"></div> {p}
+                                                            <div className="w-1 h-1 rounded-full bg-indigo-400"></div> {p}
                                                         </li>
                                                     ))}
                                                 </ul>
                                             </div>
-                                            <div className="space-y-4">
-                                                <div className="flex items-center gap-2">
-                                                    <Target className="h-4 w-4 text-amber-500" />
-                                                    <h6 className="text-[10px] font-bold text-amber-700 uppercase">Beta Advantages</h6>
-                                                </div>
-                                                <ul className="text-xs space-y-1">
+                                            <div className="bg-amber-50/30 p-6 rounded-3xl border border-amber-50">
+                                                <h6 className="text-[10px] font-bold text-amber-700 uppercase mb-4">Beta Advantages</h6>
+                                                <ul className="text-xs space-y-2">
                                                     {TOPOLOGY_CHARACTERISTICS[compTopologyB].pros.map((p, i) => (
                                                         <li key={i} className="flex items-center gap-2 text-slate-600 font-medium">
                                                             <div className="w-1.5 h-1.5 rounded-full bg-amber-400"></div> {p}
@@ -914,203 +938,222 @@ export default function TokenProtocolsSimulation({ labMode = "LEARNING" }: { lab
                                             </div>
                                         </div>
 
-                                        {/* Experiment Observations Section */}
-                                        <div className="mt-10 p-8 bg-white rounded-3xl border border-slate-100 shadow-sm">
-                                            <div className="flex items-center justify-between mb-6">
-                                                <div className="flex items-center gap-3">
-                                                    <FileText className="h-5 w-5 text-indigo-500" />
-                                                    <h5 className="font-black text-slate-800 uppercase tracking-widest text-xs">Experiment Observations</h5>
-                                                </div>
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase bg-slate-50 px-3 py-1 rounded-full">Record Results Here</span>
+                                        {/* Experiment Observation Section */}
+                                        <div className="mt-10 p-8 bg-slate-900 rounded-[2.5rem] border border-slate-800 shadow-2xl relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 p-8 opacity-10">
+                                                <FileText className="h-24 w-24 text-white" />
                                             </div>
-                                            <textarea
-                                                className="w-full h-32 p-4 bg-slate-50 rounded-2xl border-none text-xs font-medium text-slate-600 focus:ring-2 ring-indigo-500 transition-all resize-none"
-                                                placeholder="Observations from the current simulation run... (e.g., Star topology demonstrated 90% throughput but total failure during Hub fault injection)"
-                                            ></textarea>
+                                            <h5 className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+                                                <Target className="h-4 w-4" />
+                                                Experiment Observations
+                                            </h5>
+                                            <div className="grid grid-cols-2 gap-8 relative z-10">
+                                                <div className="space-y-4">
+                                                    <p className="text-xs text-slate-400 leading-relaxed font-medium">
+                                                        Based on the simulation, <span className="text-white font-bold">{TOPOLOGY_CHARACTERISTICS[compTopologyA].name}</span> shows
+                                                        a {TOPOLOGY_CHARACTERISTICS[compTopologyA].throughput > 80 ? "steady" : "variable"} throughput
+                                                        with {TOPOLOGY_CHARACTERISTICS[compTopologyA].reliability}% fault tolerance.
+                                                    </p>
+                                                    <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                                                        <p className="text-[10px] text-slate-500 font-bold uppercase mb-1 italic">Analysis Note:</p>
+                                                        <p className="text-[10px] text-slate-300">Deterministic nature of token passing eliminates collisions, unlike CSMA/CD.</p>
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-4">
+                                                    <p className="text-xs text-slate-400 leading-relaxed font-medium text-right">
+                                                        In contrast, <span className="text-white font-bold">{TOPOLOGY_CHARACTERISTICS[compTopologyB].name}</span> exhibits
+                                                        {TOPOLOGY_CHARACTERISTICS[compTopologyB].delay < 30 ? " minimal " : " moderate "} latency
+                                                        and is optimized for {TOPOLOGY_CHARACTERISTICS[compTopologyB].bestFor.toLowerCase()}.
+                                                    </p>
+                                                    <div className="p-4 bg-white/5 rounded-2xl border border-white/10 text-right">
+                                                        <p className="text-[10px] text-slate-500 font-bold uppercase mb-1 italic">Comparison Note:</p>
+                                                        <p className="text-[10px] text-slate-300">Topology design impacts scalability and reconfiguration complexity significantly.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                </div>
-                        ) : (
-                        <svg
-                            className="w-full h-full min-h-[500px] cursor-crosshair"
-                            viewBox="0 0 700 500"
-                            onClick={handleStageClick}
-                            onMouseMove={handleMouseMove}
-                            onMouseUp={handleMouseUp}
-                            onMouseLeave={handleMouseUp}
-                        >
-                            <SimulationSVGArt
-                                mode={mode as any}
-                                nodes={nodes}
-                                edges={edges}
-                                tokenPos={tokenPos}
-                                activeTransmission={activeTransmission}
-                                width={700} height={500}
-                                onNodeMouseDown={handleMouseDown}
-                                selectedNodeId={draggedNode}
-                                connectSourceId={connectSource}
-                            />
-                        </svg>
+                            ) : (
+                                <svg
+                                    className="w-full h-full min-h-[500px] cursor-crosshair"
+                                    viewBox="0 0 700 500"
+                                    onClick={handleStageClick}
+                                    onMouseMove={handleMouseMove}
+                                    onMouseUp={handleMouseUp}
+                                    onMouseLeave={handleMouseUp}
+                                >
+                                    <SimulationSVGArt
+                                        mode={mode as any}
+                                        nodes={nodes}
+                                        edges={edges}
+                                        tokenPos={tokenPos}
+                                        activeTransmission={activeTransmission}
+                                        width={700} height={500}
+                                        onNodeMouseDown={handleMouseDown}
+                                        selectedNodeId={draggedNode}
+                                        connectSourceId={connectSource}
+                                    />
+                                </svg>
                             )}
 
-                        {/* Log Banner */}
-                        <div className="absolute top-8 left-8 space-y-2 max-w-[300px]">
-                            {logs.map((log, i) => (
-                                <div key={i} className={`p-2 px-4 rounded-xl text-[9px] font-bold shadow-sm flex items-center gap-2 animate-in slide-in-from-left duration-500
+                            {/* Log Banner */}
+                            <div className="absolute top-8 left-8 space-y-2 max-w-[300px]">
+                                {logs.map((log, i) => (
+                                    <div key={i} className={`p-2 px-4 rounded-xl text-[9px] font-bold shadow-sm flex items-center gap-2 animate-in slide-in-from-left duration-500
                                         ${log.type === 'error' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
-                                        log.type === 'success' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
-                                            'bg-blue-50 text-blue-600 border border-blue-100'}`}>
-                                    {log.type === 'error' ? <AlertTriangle className="h-3 w-3" /> : log.type === 'success' ? <CheckCircle2 className="h-3 w-3" /> : <Info className="h-3 w-3" />}
-                                    {log.msg}
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Legend Overlay */}
-                        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-8 px-8 py-3 bg-white/50 backdrop-blur-md rounded-full border border-slate-200">
-                            <LegendItem label="Token" color="bg-amber-500" />
-                            <LegendItem label="Data Flow" color="bg-indigo-500" />
-                            <LegendItem label="Failed Node" color="bg-rose-500" />
-                        </div>
-                    </div>
-                    </div>
-                )}
-
-            {activeTab === "comparison" && (
-                <div className="p-8 max-w-5xl mx-auto space-y-8">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-black text-slate-800">Experiment Observations</h2>
-                        <Button variant="outline" size="sm" onClick={() => window.print()} className="rounded-xl">
-                            Export Results (PDF)
-                        </Button>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <StatCard label="Total Transmission Cycles" value={stats.totalTransmissions} icon={<RotateCcw className="text-blue-500" />} />
-                        <StatCard label="Peak Throughput" value={`${stats.throughput.toFixed(2)} bps`} icon={<Zap className="text-amber-500" />} />
-                        <StatCard label="Time Efficiency" value={`${stats.efficiency.toFixed(1)}%`} icon={<Activity className="text-emerald-500" />} />
-                        <StatCard label="Avg Access Delay" value={`${(stats.avgDelay / 10).toFixed(2)} ms`} icon={<Activity className="text-rose-500" />} />
-                    </div>
-
-                    <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-xl">
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-50 border-b">
-                                <tr>
-                                    <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Time Point</th>
-                                    <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Active Nodes</th>
-                                    <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Throughput (bps)</th>
-                                    <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Efficiency (%)</th>
-                                    <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {history.map((h, i) => (
-                                    <tr key={i} className="border-b last:border-0 hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-4 text-xs font-mono">{h.time} units</td>
-                                        <td className="px-6 py-4 text-xs">{h.nodeCount}</td>
-                                        <td className="px-6 py-4 text-xs font-bold text-blue-600">{h.throughput.toFixed(2)}</td>
-                                        <td className="px-6 py-4 text-xs font-bold text-emerald-600">{h.efficiency.toFixed(1)}%</td>
-                                        <td className="px-6 py-4 text-[9px] font-black uppercase text-emerald-500">Normal Operation</td>
-                                    </tr>
+                                            log.type === 'success' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' :
+                                                'bg-blue-50 text-blue-600 border border-blue-100'}`}>
+                                        {log.type === 'error' ? <AlertTriangle className="h-3 w-3" /> : log.type === 'success' ? <CheckCircle2 className="h-3 w-3" /> : <Info className="h-3 w-3" />}
+                                        {log.msg}
+                                    </div>
                                 ))}
-                                {history.length === 0 && (
-                                    <tr>
-                                        <td colSpan={4} className="px-6 py-12 text-center text-slate-400 italic text-sm">
-                                            No observations recorded. Run the simulation to capture data.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
+                            </div>
 
-                    {/* Result Analysis */}
-                    <div className="bg-blue-600 p-8 rounded-[2.5rem] text-white space-y-4">
-                        <h3 className="font-bold text-lg flex items-center gap-2">
-                            <CheckCircle2 /> Final Result Analysis
-                        </h3>
-                        <p className="text-sm text-blue-100 leading-relaxed">
-                            Base on the recorded {stats.totalTransmissions} transmissions, the {mode} protocol demonstrates
-                            a channel utilization of {stats.channelUtilization.toFixed(1)}%. The system maintained a Fairness
-                            Index of {stats.fairnessIndex.toFixed(2)}, proving deterministic access.
-                        </p>
-                    </div>
-                </div>
-            )}
-
-            {activeTab === "quiz" && (
-                <div className="p-8 max-w-3xl mx-auto">
-                    {/* Quiz Content remains mostly similar but with results refined */}
-                    <div className="bg-white rounded-[3rem] border border-slate-200 shadow-2xl overflow-hidden">
-                        <div className="bg-indigo-600 p-10 text-white relative">
-                            <div className="absolute top-0 right-0 p-8 opacity-20"><HelpCircle size={80} /></div>
-                            <h2 className="text-3xl font-black tracking-tight mb-2 italic">Theory Mastery</h2>
-                            <p className="text-indigo-100 text-xs font-bold uppercase tracking-widest opacity-80">B.Tech CN Lab Evaluation</p>
-                        </div>
-
-                        <div className="p-10 space-y-12">
-                            {quizQuestions.map((q, qIdx) => (
-                                <div key={qIdx} className="space-y-6">
-                                    <h4 className="font-bold text-slate-800 flex gap-4">
-                                        <span className="text-indigo-100 text-2xl font-black italic">{qIdx + 1}</span>
-                                        {q.q}
-                                    </h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-9">
-                                        {q.options.map((opt, oIdx) => (
-                                            <button
-                                                key={oIdx}
-                                                disabled={showResults}
-                                                onClick={() => setQuizAnswers({ ...quizAnswers, [qIdx]: oIdx })}
-                                                className={`p-4 text-left text-sm rounded-2xl border-2 transition-all ${quizAnswers[qIdx] === oIdx
-                                                    ? showResults
-                                                        ? oIdx === q.correct
-                                                            ? "border-emerald-500 bg-emerald-50 text-emerald-800"
-                                                            : "border-rose-500 bg-rose-50 text-rose-800"
-                                                        : "border-indigo-600 bg-indigo-50 text-indigo-700 font-bold"
-                                                    : "border-slate-100 hover:border-slate-200 text-slate-600"
-                                                    } ${showResults && oIdx === q.correct ? "border-emerald-500 bg-emerald-50" : ""}`}
-                                            >
-                                                {opt}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-
-                            <div className="pt-8 border-t">
-                                {!showResults ? (
-                                    <Button
-                                        className="w-full h-16 bg-indigo-600 hover:bg-indigo-700 rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl"
-                                        onClick={() => setShowResults(true)}
-                                        disabled={Object.keys(quizAnswers).length < quizQuestions.length}
-                                    >
-                                        Complete Final Assessment
-                                    </Button>
-                                ) : (
-                                    <div className="flex flex-col items-center gap-6">
-                                        <div className="text-center p-8 bg-indigo-50 rounded-[2rem] w-full border border-indigo-100">
-                                            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Final Score</p>
-                                            <p className="text-5xl font-black text-indigo-600">
-                                                {Object.entries(quizAnswers).filter(([idx, ans]) => {
-                                                    const q = quizQuestions[Number(idx)];
-                                                    return q && q.correct === ans;
-                                                }).length} / {quizQuestions.length}
-                                            </p>
-                                        </div>
-                                        <Button variant="outline" className="rounded-2xl h-12 px-12 font-bold" onClick={() => { setShowResults(false); setQuizAnswers({}); }}>
-                                            Try Again
-                                        </Button>
-                                    </div>
-                                )}
+                            {/* Legend Overlay */}
+                            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-8 px-8 py-3 bg-white/50 backdrop-blur-md rounded-full border border-slate-200">
+                                <LegendItem label="Token" color="bg-amber-500" />
+                                <LegendItem label="Data Flow" color="bg-indigo-500" />
+                                <LegendItem label="Failed Node" color="bg-rose-500" />
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )}
 
-            {/* Footer Status Bar */ }
+                {activeTab === "comparison" && (
+                    <div className="p-8 max-w-5xl mx-auto space-y-8">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-2xl font-black text-slate-800">Experiment Observations</h2>
+                            <Button variant="outline" size="sm" onClick={() => window.print()} className="rounded-xl">
+                                Export Results (PDF)
+                            </Button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <StatCard label="Total Transmission Cycles" value={stats.totalTransmissions} icon={<RotateCcw className="text-blue-500" />} />
+                            <StatCard label="Peak Throughput" value={`${stats.throughput.toFixed(2)} bps`} icon={<Zap className="text-amber-500" />} />
+                            <StatCard label="Time Efficiency" value={`${stats.efficiency.toFixed(1)}%`} icon={<Activity className="text-emerald-500" />} />
+                            <StatCard label="Avg Access Delay" value={`${(stats.avgDelay / 10).toFixed(2)} ms`} icon={<Activity className="text-rose-500" />} />
+                        </div>
+
+                        <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-xl">
+                            <table className="w-full text-left">
+                                <thead className="bg-slate-50 border-b">
+                                    <tr>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Time Point</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Active Nodes</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Throughput (bps)</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Efficiency (%)</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase text-slate-400">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {history.map((h, i) => (
+                                        <tr key={i} className="border-b last:border-0 hover:bg-slate-50 transition-colors">
+                                            <td className="px-6 py-4 text-xs font-mono">{h.time} units</td>
+                                            <td className="px-6 py-4 text-xs">{h.nodeCount}</td>
+                                            <td className="px-6 py-4 text-xs font-bold text-blue-600">{h.throughput.toFixed(2)}</td>
+                                            <td className="px-6 py-4 text-xs font-bold text-emerald-600">{h.efficiency.toFixed(1)}%</td>
+                                            <td className="px-6 py-4 text-[9px] font-black uppercase text-emerald-500">Normal Operation</td>
+                                        </tr>
+                                    ))}
+                                    {history.length === 0 && (
+                                        <tr>
+                                            <td colSpan={4} className="px-6 py-12 text-center text-slate-400 italic text-sm">
+                                                No observations recorded. Run the simulation to capture data.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Result Analysis */}
+                        <div className="bg-blue-600 p-8 rounded-[2.5rem] text-white space-y-4">
+                            <h3 className="font-bold text-lg flex items-center gap-2">
+                                <CheckCircle2 /> Final Result Analysis
+                            </h3>
+                            <p className="text-sm text-blue-100 leading-relaxed">
+                                Base on the recorded {stats.totalTransmissions} transmissions, the {mode} protocol demonstrates
+                                a channel utilization of {stats.channelUtilization.toFixed(1)}%. The system maintained a Fairness
+                                Index of {stats.fairnessIndex.toFixed(2)}, proving deterministic access.
+                            </p>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === "quiz" && (
+                    <div className="p-8 max-w-3xl mx-auto">
+                        {/* Quiz Content remains mostly similar but with results refined */}
+                        <div className="bg-white rounded-[3rem] border border-slate-200 shadow-2xl overflow-hidden">
+                            <div className="bg-indigo-600 p-10 text-white relative">
+                                <div className="absolute top-0 right-0 p-8 opacity-20"><HelpCircle size={80} /></div>
+                                <h2 className="text-3xl font-black tracking-tight mb-2 italic">Theory Mastery</h2>
+                                <p className="text-indigo-100 text-xs font-bold uppercase tracking-widest opacity-80">B.Tech CN Lab Evaluation</p>
+                            </div>
+
+                            <div className="p-10 space-y-12">
+                                {quizQuestions.map((q, qIdx) => (
+                                    <div key={qIdx} className="space-y-6">
+                                        <h4 className="font-bold text-slate-800 flex gap-4">
+                                            <span className="text-indigo-100 text-2xl font-black italic">{qIdx + 1}</span>
+                                            {q.q}
+                                        </h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-9">
+                                            {q.options.map((opt, oIdx) => (
+                                                <button
+                                                    key={oIdx}
+                                                    disabled={showResults}
+                                                    onClick={() => setQuizAnswers({ ...quizAnswers, [qIdx]: oIdx })}
+                                                    className={`p-4 text-left text-sm rounded-2xl border-2 transition-all ${quizAnswers[qIdx] === oIdx
+                                                        ? showResults
+                                                            ? oIdx === q.correct
+                                                                ? "border-emerald-500 bg-emerald-50 text-emerald-800"
+                                                                : "border-rose-500 bg-rose-50 text-rose-800"
+                                                            : "border-indigo-600 bg-indigo-50 text-indigo-700 font-bold"
+                                                        : "border-slate-100 hover:border-slate-200 text-slate-600"
+                                                        } ${showResults && oIdx === q.correct ? "border-emerald-500 bg-emerald-50" : ""}`}
+                                                >
+                                                    {opt}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+
+                                <div className="pt-8 border-t">
+                                    {!showResults ? (
+                                        <Button
+                                            className="w-full h-16 bg-indigo-600 hover:bg-indigo-700 rounded-3xl font-black uppercase tracking-widest text-xs shadow-xl"
+                                            onClick={() => setShowResults(true)}
+                                            disabled={Object.keys(quizAnswers).length < quizQuestions.length}
+                                        >
+                                            Complete Final Assessment
+                                        </Button>
+                                    ) : (
+                                        <div className="flex flex-col items-center gap-6">
+                                            <div className="text-center p-8 bg-indigo-50 rounded-[2rem] w-full border border-indigo-100">
+                                                <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Final Score</p>
+                                                <p className="text-5xl font-black text-indigo-600">
+                                                    {Object.entries(quizAnswers).filter(([idx, ans]) => {
+                                                        const q = quizQuestions[Number(idx)];
+                                                        return q && q.correct === ans;
+                                                    }).length} / {quizQuestions.length}
+                                                </p>
+                                            </div>
+                                            <Button variant="outline" className="rounded-2xl h-12 px-12 font-bold" onClick={() => { setShowResults(false); setQuizAnswers({}); }}>
+                                                Try Again
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Footer Status Bar */}
             <div className="bg-slate-900 px-6 py-2 flex items-center justify-between text-[8px] font-black uppercase tracking-[0.2em]">
                 <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1.5 text-cyan-400">
@@ -1135,7 +1178,7 @@ export default function TokenProtocolsSimulation({ labMode = "LEARNING" }: { lab
                     transform-origin: center;
                 }
             `}</style>
-        </div >
+        </div>
     );
 }
 
@@ -1246,18 +1289,20 @@ function SimulationSVGArt({ mode, nodes, edges, tokenPos, activeTransmission, wi
                 </g>
             )}
 
-            {/* Ring Sequence Preview for Hybrid - Always visible in Designer/Sim */}
-            {mode === "hybrid" && nodes.map((n: any, i: number) => {
-                if (n.type !== "pc") return null;
-                // Find next PC in array
-                let nextPCIndex = (i + 1) % nodes.length;
-                while (nodes[nextPCIndex] && nodes[nextPCIndex].type !== "pc" && nextPCIndex !== i) {
-                    nextPCIndex = (nextPCIndex + 1) % nodes.length;
+            {/* Ring Sequence Preview for Hybrid/Mesh - Always visible in Designer/Sim */}
+            {(mode === "hybrid" || mode === "mesh") && nodes.map((n: any, i: number) => {
+                if (mode === "hybrid" && n.type !== "pc") return null;
+                // Find next PC in array (for mesh, everyone is a PC)
+                let nextIndex = (i + 1) % nodes.length;
+                if (mode === "hybrid") {
+                    while (nodes[nextIndex] && nodes[nextIndex].type !== "pc" && nextIndex !== i) {
+                        nextIndex = (nextIndex + 1) % nodes.length;
+                    }
                 }
-                if (nextPCIndex === i || !nodes[nextPCIndex]) return null;
+                if (nextIndex === i || !nodes[nextIndex]) return null;
 
                 const from = nodePositions[i];
-                const to = nodePositions[nextPCIndex];
+                const to = nodePositions[nextIndex];
                 if (!from || !to) return null;
 
                 return (
@@ -1265,7 +1310,7 @@ function SimulationSVGArt({ mode, nodes, edges, tokenPos, activeTransmission, wi
                         key={`ring-seq-${i}`}
                         d={`M ${from.x} ${from.y} Q ${(from.x + to.x) / 2} ${(from.y + to.y) / 2 - 40} ${to.x} ${to.y}`}
                         fill="none"
-                        stroke="#10b981"
+                        stroke={mode === "mesh" ? "#10b981" : "#6366f1"}
                         strokeWidth="1"
                         strokeDasharray="4 4"
                         strokeOpacity="0.3"
@@ -1313,25 +1358,18 @@ function SimulationSVGArt({ mode, nodes, edges, tokenPos, activeTransmission, wi
                     }
                     pathD = `M ${from.x} ${from.y} L ${from.x} ${busY} L ${to.x} ${busY} L ${to.x} ${to.y}`;
                 } else if (mode === "star") {
-                    // Star Path: from -> hub (id 0) -> to
-                    const hub = nodePositions[0];
+                    const hub = nodePositions[0]; // Center hub in star
                     const progress = activeTransmission.progress;
                     if (progress < 50) {
                         const p = progress / 50;
-                        currentPos = {
-                            x: from.x + (hub.x - from.x) * p,
-                            y: from.y + (hub.y - from.y) * p
-                        };
+                        currentPos = { x: from.x + (hub.x - from.x) * p, y: from.y + (hub.y - from.y) * p };
                     } else {
                         const p = (progress - 50) / 50;
-                        currentPos = {
-                            x: hub.x + (to.x - hub.x) * p,
-                            y: hub.y + (to.y - hub.y) * p
-                        };
+                        currentPos = { x: hub.x + (to.x - hub.x) * p, y: hub.y + (to.y - hub.y) * p };
                     }
                     pathD = `M ${from.x} ${from.y} L ${hub.x} ${hub.y} L ${to.x} ${to.y}`;
                 } else {
-                    // Direct Point-to-Point Path (Mesh/Star/Hybrid)
+                    // Direct Point-to-Point Path (Mesh/Hybrid)
                     const p = activeTransmission.progress / 100;
                     currentPos = {
                         x: from.x + (to.x - from.x) * p,
