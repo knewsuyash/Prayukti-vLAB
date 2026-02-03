@@ -160,6 +160,17 @@ export default function TokenProtocolsSimulation() {
             }
         }
 
+        if (mode === "hybrid") {
+            // In hybrid mode, initialization is handled by Designer Mode
+            // and we don't want to clear nodes/edges if we're just toggling speed/count
+            // but we SHOULD ensure a token exists if the simulation is about to run
+            if (nodes.length > 0 && !nodes.some(n => n.hasToken)) {
+                setNodes(prev => prev.map((n, i) => i === 0 ? { ...n, hasToken: true } : n));
+                setTokenPos(0);
+            }
+            return;
+        }
+
         setNodes(newNodes);
         setEdges(newEdges);
         setTokenPos(mode === "star" ? 1 : 0);
@@ -196,7 +207,7 @@ export default function TokenProtocolsSimulation() {
 
             if (!currentNode || currentNode.state === "failed") {
                 // Skip failed node or pass token
-                setTokenPos(prev => (prev + 1) % nodeCount);
+                setTokenPos(prev => (prev + 1) % nextNodes.length);
                 return prevNodes;
             }
 
@@ -262,7 +273,7 @@ export default function TokenProtocolsSimulation() {
             if (currentNode.hasToken && !activeTransmission) {
                 const wantsToTransmit = Math.random() < 0.4;
                 if (wantsToTransmit) {
-                    const target = (tokenPos + Math.floor(Math.random() * (nodeCount - 1)) + 1) % nodeCount;
+                    const target = (tokenPos + Math.floor(Math.random() * (nextNodes.length - 1)) + 1) % nextNodes.length;
                     setActiveTransmission({ from: tokenPos, to: target, progress: 0, isReturning: false });
                     addLog(`PC-${currentNode.id} initiated transmission to PC-${nextNodes[target]?.id}`, 'info');
                     return nextNodes.map((n, i) => ({
@@ -271,7 +282,7 @@ export default function TokenProtocolsSimulation() {
                     }));
                 } else {
                     // No data, pass token
-                    const nextTokenPos = (tokenPos + 1) % nodeCount;
+                    const nextTokenPos = (tokenPos + 1) % nextNodes.length;
                     setTokenPos(nextTokenPos);
                     return nextNodes.map((n, i) => ({
                         ...n,
