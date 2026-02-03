@@ -1,89 +1,40 @@
 "use client";
 
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function Dashboard() {
+export default function DashboardDispatcher() {
+    const router = useRouter();
+
+    useEffect(() => {
+        // In a real app, successful login sets a cookie/token and we decode it here.
+        // For this prototype, we check localStorage or default to student for safety,
+        // OR better yet, we just redirect to student as default if no role found.
+
+        const userStr = typeof window !== 'undefined' ? localStorage.getItem("user") : null;
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                if (user.role === "TEACHER") {
+                    router.push("/teacher/dashboard");
+                } else if (user.role === "ADMIN") {
+                    router.push("/admin/dashboard");
+                } else {
+                    router.push("/student/dashboard");
+                }
+            } catch (e) {
+                // fallback
+                router.push("/student/dashboard");
+            }
+        } else {
+            // No user, redirect to login
+            router.push("/login");
+        }
+    }, [router]);
+
     return (
-        <div className="min-h-screen bg-gray-50">
-            <header className="bg-white border-b shadow-sm sticky top-0 z-10">
-                <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-                    <h1 className="text-xl font-bold text-[#d32f2f]">Prayukti vLAB <span className="text-gray-500 font-normal">| Student Dashboard</span></h1>
-                    <div className="flex gap-4 items-center">
-                        <span className="text-sm font-medium">Hello, Student</span>
-                        <Link href="/">
-                            <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-700">Logout</Button>
-                        </Link>
-                    </div>
-                </div>
-            </header>
-
-            <main className="container mx-auto px-4 py-8">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">Your Subjects</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* DLD Subject Card */}
-                    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100 group">
-                        <div className="h-32 bg-orange-100 flex items-center justify-center">
-                            <span className="text-4xl">⚡</span>
-                        </div>
-                        <div className="p-6">
-                            <h3 className="text-xl font-bold mb-2 group-hover:text-[#d32f2f] transition-colors">Digital Logic & Design (DLD)</h3>
-                            <p className="text-sm text-gray-600 mb-4">
-                                Master the fundamentals of digital electronics, logic gates, and circuit design.
-                            </p>
-                            <div className="flex justify-between items-center">
-                                <span className="text-xs font-semibold bg-green-100 text-green-700 px-2 py-1 rounded">Active</span>
-                                <Link href="/dashboard/dld">
-                                    <Button className="bg-[#f57f17] hover:bg-[#e65100]">Enter Lab</Button>
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* OOPJ Subject Card */}
-                    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100 group">
-                        <div className="h-32 bg-blue-100 flex items-center justify-center">
-                            <span className="text-4xl">☕</span>
-                        </div>
-                        <div className="p-6">
-                            <h3 className="text-xl font-bold mb-2 group-hover:text-[#d32f2f] transition-colors">Object Oriented Programming in Java</h3>
-                            <p className="text-sm text-gray-600 mb-4">
-                                Learn Java programming, OOP concepts, exceptions, and collections.
-                            </p>
-                            <div className="flex justify-between items-center">
-                                <span className="text-xs font-semibold bg-green-100 text-green-700 px-2 py-1 rounded">Active</span>
-                                <Link href="/subjects/oopj">
-                                    <Button className="bg-[#d32f2f] hover:bg-[#b71c1c]">Enter Lab</Button>
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* DBMS Subject Card */}
-                    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-100 group">
-                        <div className="h-32 bg-red-100 flex items-center justify-center">
-                            <span className="text-4xl">🗄️</span>
-                        </div>
-                        <div className="p-6">
-                            <h3 className="text-xl font-bold mb-2 group-hover:text-[#d32f2f] transition-colors">Database Management Systems (DBMS)</h3>
-                            <p className="text-sm text-gray-600 mb-4">
-                                Design databases, write SQL queries, and understand relational schema.
-                            </p>
-                            <div className="flex justify-between items-center">
-                                <span className="text-xs font-semibold bg-green-100 text-green-700 px-2 py-1 rounded">Active</span>
-                                <Link href="/dashboard/dbms">
-                                    <Button className="bg-[#d32f2f] hover:bg-[#b71c1c]">Enter Lab</Button>
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <h2 className="text-2xl font-bold mt-12 mb-6 text-gray-800">Recent Circuits</h2>
-                <div className="bg-white rounded-lg shadow-sm border p-8 text-center text-gray-500">
-                    <p>No saved circuits found. Start by entering a subject lab!</p>
-                </div>
-            </main>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <p className="text-gray-500">Redirecting to your dashboard...</p>
         </div>
     );
 }

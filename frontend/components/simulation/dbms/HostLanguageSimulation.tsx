@@ -198,7 +198,16 @@ SQLDisconnect(sqlconn);`
 };
 
 
-export default function HostLanguageSimulation() {
+import { WithMode } from "@/lib/labs/modes";
+
+interface HostLanguageSimulationProps extends WithMode {
+    mode?: "LEARNING" | "EXPERIMENTAL" | "EXAM";
+}
+
+export default function HostLanguageSimulation({ mode = "LEARNING" }: HostLanguageSimulationProps) {
+    // We can use 'mode' to disable hints or timer in EXAM mode
+    const isExam = mode === "EXAM";
+
     const [lang, setLang] = useState<Lang>('java');
     const [op, setOp] = useState<Op>('select');
     const [step, setStep] = useState<number>(0);

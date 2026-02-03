@@ -26,7 +26,15 @@ interface QueryLog {
     type: "CREATE" | "INSERT" | "UPDATE" | "DELETE" | "ERROR" | "INFO";
 }
 
-export default function BasicOperationsSimulation() {
+import { WithMode } from "@/lib/labs/modes";
+
+interface BasicOperationsSimulationProps extends WithMode {
+    mode?: "LEARNING" | "EXPERIMENTAL" | "EXAM";
+}
+
+export default function BasicOperationsSimulation({ mode = "LEARNING" }: BasicOperationsSimulationProps) {
+    const isExam = mode === "EXAM";
+
     // State
     const [selectedDBType, setSelectedDBType] = useState<DBType>("MySQL");
     const [database, setDatabase] = useState<DatabaseStructure | null>(null);

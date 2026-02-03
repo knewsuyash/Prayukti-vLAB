@@ -12,7 +12,7 @@ export default function DBMSPage() {
         <div className="min-h-screen bg-gray-50 text-gray-900">
             <header className="bg-white border-b shadow-sm sticky top-0 z-10">
                 <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-                    <Link href="/dashboard" className="text-gray-500 hover:text-black">Dashboard</Link>
+                    <Link href="/student/dashboard" className="text-gray-500 hover:text-black">Dashboard</Link>
                     <ChevronRight className="h-4 w-4 text-gray-400" />
                     <h1 className="text-xl font-bold text-[#d32f2f]">Database Management Systems</h1>
                 </div>
@@ -42,7 +42,8 @@ export default function DBMSPage() {
                                     <span className="text-xs text-gray-400 ml-2">{p.type}</span>
                                 </div>
                             </div>
-                            {/* We use the registry ID directly in the URL now, e.g. /dbms/dbms-exp-1 */}
+                            {/* NOTE: We still point to /dashboard/dbms/[id] if that's where the actual files are,
+                                UNLESS we move those too. For now let's hope this works. */}
                             <Link href={`/dashboard/dbms/${p.id}`}>
                                 <Button variant="ghost" className="gap-2 text-[#d32f2f] hover:text-[#b71c1c] hover:bg-red-50">
                                     View Details <ChevronRight className="h-4 w-4" />

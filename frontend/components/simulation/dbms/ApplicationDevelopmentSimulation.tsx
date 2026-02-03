@@ -26,8 +26,16 @@ const schemas = {
     ]
 };
 
-export default function ApplicationDevelopmentSimulation() {
-    const [mode, setMode] = useState<AppMode>("Store");
+import { WithMode } from "@/lib/labs/modes";
+
+interface ApplicationDevelopmentSimulationProps extends WithMode {
+    mode?: "LEARNING" | "EXPERIMENTAL" | "EXAM";
+}
+
+export default function ApplicationDevelopmentSimulation({ mode = "LEARNING" }: ApplicationDevelopmentSimulationProps) {
+    const isExam = mode === "EXAM";
+
+    const [appMode, setAppMode] = useState<AppMode>("Store");
     const [actionLog, setActionLog] = useState<string[]>([]);
     const [sqlQuery, setSqlQuery] = useState("");
 
@@ -117,7 +125,7 @@ export default function ApplicationDevelopmentSimulation() {
     const deleteRecord = (table: string, id: number) => {
         if (!confirm("Are you sure you want to delete this record?")) return;
         const newData = { ...data };
-        newData[mode][table] = newData[mode][table].filter((r: any) => r.id !== id);
+        newData[appMode][table] = newData[appMode][table].filter((r: any) => r.id !== id);
         setData(newData);
         logAction(`DELETE FROM ${table} WHERE id=${id};`);
     };
@@ -306,8 +314,8 @@ export default function ApplicationDevelopmentSimulation() {
     };
 
     const renderVisualizer = () => {
-        const currentSchema = schemas[mode];
-        const currentData = data[mode];
+        const currentSchema = schemas[appMode];
+        const currentData = data[appMode];
 
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -356,8 +364,8 @@ export default function ApplicationDevelopmentSimulation() {
                 </div>
                 <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
                     {["Store", "Vendor", "Finance"].map((m) => (
-                        <button key={m} onClick={() => { setMode(m as AppMode); setActionLog([]); resetForm(); }}
-                            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${mode === m ? "bg-white shadow text-[#d32f2f]" : "text-gray-500 hover:text-gray-700"}`}>
+                        <button key={m} onClick={() => { setAppMode(m as AppMode); setActionLog([]); resetForm(); }}
+                            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all ${appMode === m ? "bg-white shadow text-[#d32f2f]" : "text-gray-500 hover:text-gray-700"}`}>
                             {m} System
                         </button>
                     ))}
@@ -370,29 +378,29 @@ export default function ApplicationDevelopmentSimulation() {
                     <div className="bg-white p-4 rounded-xl border shadow-sm flex items-center justify-between">
                         <div>
                             <h2 className="font-bold text-gray-800 flex items-center gap-2">
-                                {mode === "Store" && <ShoppingCart className="text-orange-500" />}
-                                {mode === "Vendor" && <Box className="text-blue-500" />}
-                                {mode === "Finance" && <CreditCard className="text-green-500" />}
-                                {mode} Management Dashboard
+                                {appMode === "Store" && <ShoppingCart className="text-orange-500" />}
+                                {appMode === "Vendor" && <Box className="text-blue-500" />}
+                                {appMode === "Finance" && <CreditCard className="text-green-500" />}
+                                {appMode} Management Dashboard
                             </h2>
                             <p className="text-xs text-gray-500 mt-1">Select an action or use icons in tables to Edit/Delete.</p>
                         </div>
                         <div className="flex gap-3">
-                            {mode === "Store" && (
+                            {appMode === "Store" && (
                                 <>
                                     <Button onClick={() => setActiveAction("addProduct")} className="bg-[#d32f2f] hover:bg-[#b71c1c] text-white"> <Plus size={16} className="mr-1" /> Add Product </Button>
                                     <Button onClick={() => setActiveAction("addCustomer")} className="bg-[#f57f17] hover:bg-[#e65100] text-white"> <Plus size={16} className="mr-1" /> Add Customer </Button>
                                     <Button onClick={() => setActiveAction("purchase")} variant="outline" className="border-orange-500 text-orange-600 hover:bg-orange-50"> <ShoppingCart size={16} className="mr-1" /> Add Sale </Button>
                                 </>
                             )}
-                            {mode === "Vendor" && (
+                            {appMode === "Vendor" && (
                                 <>
                                     <Button onClick={() => setActiveAction("addVendor")} className="bg-[#d32f2f] hover:bg-[#b71c1c] text-white"> <Plus size={16} className="mr-1" /> New Vendor </Button>
                                     <Button onClick={() => setActiveAction("createPO")} variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50"> <ArrowRight size={16} className="mr-1" /> Create PO </Button>
                                     <Button onClick={() => setActiveAction("addDelivery")} className="bg-purple-600 hover:bg-purple-700 text-white"> <Plus size={16} className="mr-1" /> Add Delivery </Button>
                                 </>
                             )}
-                            {mode === "Finance" && (
+                            {appMode === "Finance" && (
                                 <>
                                     <Button onClick={() => setActiveAction("addAccount")} className="bg-blue-600 hover:bg-blue-700 text-white"> <Plus size={16} className="mr-1" /> Add Account </Button>
                                     <Button onClick={() => setActiveAction("transaction")} className="bg-green-600 hover:bg-green-700 text-white"> <Plus size={16} className="mr-1" /> Record Transaction </Button>

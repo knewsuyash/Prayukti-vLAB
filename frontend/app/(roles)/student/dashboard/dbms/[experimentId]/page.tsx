@@ -7,11 +7,6 @@ import { LAB_CONTENT } from "@/lib/labs/rich-content";
 export default async function PracticalDetail({ params }: { params: Promise<{ experimentId: string }> }) {
     const { experimentId } = await params;
 
-    // 1. Fetch from Registry
-    // Handle both old IDs (1, 2) and new IDs (dbms-exp-1) for backward compatibility during migration?
-    // Actually, dashboard links now point to 'dbms-exp-X'.
-    // If user comes from old bookmark '1', this might break.
-    // Let's retry with 'dbms-exp-' prefix if plain number.
     let labId = experimentId;
     if (!isNaN(Number(experimentId))) {
         labId = `dbms-exp-${experimentId}`;
@@ -37,45 +32,33 @@ export default async function PracticalDetail({ params }: { params: Promise<{ ex
             </header>
 
             <main className="container mx-auto px-4 py-8 flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Left Content (Theory) */}
                 <div className="lg:col-span-2 space-y-8">
                     <section className="bg-white p-6 rounded-lg shadow-sm border">
                         <h2 className="text-xl font-bold text-[#d32f2f] mb-4 border-b pb-2">Aim</h2>
                         <p className="text-gray-700">{content.aim}</p>
                     </section>
-
                     <section className="bg-white p-6 rounded-lg shadow-sm border">
                         <h2 className="text-xl font-bold text-[#d32f2f] mb-4 border-b pb-2">Theory</h2>
                         {content.theory}
                     </section>
-
                     <section className="bg-white p-6 rounded-lg shadow-sm border">
                         <h2 className="text-xl font-bold text-[#d32f2f] mb-4 border-b pb-2">Procedure</h2>
                         {content.procedure}
                     </section>
                 </div>
 
-                {/* Right Sidebar (Actions) */}
                 <div className="space-y-6">
                     <div className="bg-white p-6 rounded-lg shadow-md border border-orange-200">
                         <h3 className="font-bold text-lg mb-2">Ready to Experiment?</h3>
                         <p className="text-sm text-gray-500 mb-6">
                             Launch the virtual simulator to perform database operations and see SQL queries in action.
                         </p>
-                        <Link href={`/dashboard/dbms/${labId}/simulation`}>
+                        <Link href={`/student/dashboard/dbms/${labId}/simulation`}>
                             <Button className="w-full bg-[#f57f17] hover:bg-[#e65100] text-lg font-bold py-6 shadow-lg hover:shadow-xl transition-all">
                                 <FlaskConical className="mr-2 h-6 w-6" />
                                 Enter Simulation
                             </Button>
                         </Link>
-                    </div>
-
-                    <div className="bg-white p-6 rounded-lg shadow-sm border">
-                        <h3 className="font-bold text-md mb-4 text-gray-800">Resources</h3>
-                        <ul className="space-y-2 text-sm text-[#d32f2f]">
-                            <li className="cursor-pointer hover:underline">SQL Syntax Guide</li>
-                            <li className="cursor-pointer hover:underline">DBMS Concepts Video</li>
-                        </ul>
                     </div>
                 </div>
             </main>

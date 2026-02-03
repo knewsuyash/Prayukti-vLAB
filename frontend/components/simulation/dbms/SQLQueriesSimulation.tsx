@@ -38,7 +38,15 @@ const initialEnrollments: Enrollment[] = [
     { rollNo: 106, courseId: "ME301" }, // Extra enrollment for Right Join demo (assuming student 106 might not exist in initial list unless added)
 ];
 
-export default function SQLQueriesSimulation() {
+import { WithMode } from "@/lib/labs/modes";
+
+interface SQLQueriesSimulationProps extends WithMode {
+    mode?: "LEARNING" | "EXPERIMENTAL" | "EXAM";
+}
+
+export default function SQLQueriesSimulation({ mode = "LEARNING" }: SQLQueriesSimulationProps) {
+    const isExam = mode === "EXAM";
+
     const [activeModule, setActiveModule] = useState<ModuleId>(1);
     const [students, setStudents] = useState<Student[]>(initialStudents);
     const [courses] = useState<Course[]>(initialCourses);

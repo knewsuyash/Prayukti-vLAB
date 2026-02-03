@@ -12,7 +12,15 @@ const initialDataUNF = [
     { EmpID: 101, Name: "Alice", ProjID: "P2", ProjName: "Web", Role: "Dev", City: "NY", Phone: "111, 222", Skill: "Java" },
 ];
 
-export default function NormalizationSimulation() {
+import { WithMode } from "@/lib/labs/modes";
+
+interface NormalizationSimulationProps extends WithMode {
+    mode?: "LEARNING" | "EXPERIMENTAL" | "EXAM";
+}
+
+export default function NormalizationSimulation({ mode = "LEARNING" }: NormalizationSimulationProps) {
+    const isExam = mode === "EXAM";
+
     const [step, setStep] = useState<number>(0);
     const [logs, setLogs] = useState<string[]>(["Simulation Initialized. Table is in Unnormalized Form (UNF)."]);
     const [showTheory, setShowTheory] = useState<boolean>(true);
