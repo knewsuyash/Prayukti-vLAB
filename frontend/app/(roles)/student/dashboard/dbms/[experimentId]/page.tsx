@@ -1,0 +1,67 @@
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, FlaskConical } from "lucide-react";
+import { getLabById } from "@/lib/labs/registry";
+import { LAB_CONTENT } from "@/lib/labs/rich-content";
+
+export default async function PracticalDetail({ params }: { params: Promise<{ experimentId: string }> }) {
+    const { experimentId } = await params;
+
+    let labId = experimentId;
+    if (!isNaN(Number(experimentId))) {
+        labId = `dbms-exp-${experimentId}`;
+    }
+
+    const lab = getLabById(labId);
+    const content = LAB_CONTENT[labId] || LAB_CONTENT["dbms-exp-1"];
+
+    if (!lab) {
+        return <div className="p-8">Experiment Not Found</div>;
+    }
+
+    return (
+        <div className="min-h-screen bg-gray-50 flex flex-col text-gray-900">
+            <header className="bg-white border-b shadow-sm sticky top-0 z-10">
+                <div className="container mx-auto px-4 py-4 flex items-center gap-4">
+                    <Link href="/student/dashboard/dbms" className="text-gray-500 hover:text-black hover:bg-gray-100 p-1 rounded-full">
+                        <ArrowLeft className="h-5 w-5" />
+                    </Link>
+                    <span className="text-gray-300">|</span>
+                    <h1 className="text-lg font-bold text-gray-800 truncate">{lab.metadata.title}</h1>
+                </div>
+            </header>
+
+            <main className="container mx-auto px-4 py-8 flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 space-y-8">
+                    <section className="bg-white p-6 rounded-lg shadow-sm border">
+                        <h2 className="text-xl font-bold text-[#d32f2f] mb-4 border-b pb-2">Aim</h2>
+                        <p className="text-gray-700">{content.aim}</p>
+                    </section>
+                    <section className="bg-white p-6 rounded-lg shadow-sm border">
+                        <h2 className="text-xl font-bold text-[#d32f2f] mb-4 border-b pb-2">Theory</h2>
+                        {content.theory}
+                    </section>
+                    <section className="bg-white p-6 rounded-lg shadow-sm border">
+                        <h2 className="text-xl font-bold text-[#d32f2f] mb-4 border-b pb-2">Procedure</h2>
+                        {content.procedure}
+                    </section>
+                </div>
+
+                <div className="space-y-6">
+                    <div className="bg-white p-6 rounded-lg shadow-md border border-orange-200">
+                        <h3 className="font-bold text-lg mb-2">Ready to Experiment?</h3>
+                        <p className="text-sm text-gray-500 mb-6">
+                            Launch the virtual simulator to perform database operations and see SQL queries in action.
+                        </p>
+                        <Link href={`/student/dashboard/dbms/${labId}/simulation`}>
+                            <Button className="w-full bg-[#f57f17] hover:bg-[#e65100] text-lg font-bold py-6 shadow-lg hover:shadow-xl transition-all">
+                                <FlaskConical className="mr-2 h-6 w-6" />
+                                Enter Simulation
+                            </Button>
+                        </Link>
+                    </div>
+                </div>
+            </main>
+        </div>
+    );
+}

@@ -138,8 +138,12 @@ export default function LoginPage() {
                             <Button
                                 onClick={() => {
                                     if (typeof window !== 'undefined') {
+                                        let role = "STUDENT";
+                                        if (email.startsWith("prof") || email.startsWith("teacher")) role = "TEACHER";
+                                        if (email.startsWith("admin")) role = "ADMIN";
+
                                         localStorage.setItem("token", "mock-jwt-token");
-                                        localStorage.setItem("user", JSON.stringify({ email }));
+                                        localStorage.setItem("user", JSON.stringify({ email, role }));
                                     }
                                     router.push("/dashboard");
                                 }}
