@@ -1,9 +1,18 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import CircuitCanvas from "@/components/simulation/CircuitCanvas";
+import { LabRegistry } from "@/lib/labs/registry";
+import { notFound } from "next/navigation";
 
 export default async function SimulationPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
+
+    const lab = LabRegistry["circuit-canvas"]; // For now, DLD only has one main engine
+
+    if (!lab) {
+        notFound();
+    }
+
+    const SimulationComponent = lab.component;
 
     return (
         <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
@@ -19,7 +28,7 @@ export default async function SimulationPage({ params }: { params: Promise<{ id:
 
             {/* Main Workbench Area */}
             <main className="flex-1 relative">
-                <CircuitCanvas />
+                <SimulationComponent />
             </main>
         </div>
     );

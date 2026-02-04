@@ -5,7 +5,7 @@ import { ReactFlow, Controls, Background, useNodesState, useEdgesState, addEdge,
 import '@xyflow/react/dist/style.css';
 import { evaluateCircuit } from '@/lib/circuit-engine';
 import { generateTruthTable, TableData } from '@/lib/table-generator';
-import { WorkspacesPanel } from './WorkspacesPanel';
+import { WorkspacesPanel } from '../core/WorkspacesPanel';
 import { Table } from 'lucide-react';
 
 // Use environment variable for API URL

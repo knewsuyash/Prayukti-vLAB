@@ -14,7 +14,7 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@repo/ui": "*",
     "@splinetool/react-spline": "^4.1.0",
-    "@splinetool/runtime": "^1.12.39",
+    "@splinetool/runtime": "^1.12.49",
     "@xyflow/react": "^12.10.0",
     "autoprefixer": "^10.4.23",
     "axios": "^1.6.8",
